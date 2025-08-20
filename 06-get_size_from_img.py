@@ -10,12 +10,15 @@ if img is None:
 # Hue(색상) Saturation(채도) Value(명도)
 hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
+#Hue(25~95): 노란빛(25 근처) → 청록(95 근처)까지 포함
+#Saturation(20 이상): 채도가 너무 낮으면 배경 흰색까지 섞일 수 있어서 20으로 제한
+#Value(20 이상): 어두운 그림자 영역 배제
 # 조명 다양성 대비: 녹색을 두 구간으로 넓게 커버 (필요시 값 미세 조정)
-lower_green1 = np.array([25, 20, 20])
-upper_green1 = np.array([95, 255, 255])
+lower_green1 = np.array([35, 40,  40])
+upper_green1 = np.array([85, 255, 255])
 
 # 조도가 낮거나 채도가 낮은 경우를 위해 더 느슨한 보조 범위 (원치 않으면 제거)
-lower_green2 = np.array([25, 30,  30])
+lower_green2 = np.array([15, 30,  30])
 upper_green2 = np.array([95, 255, 255])
 
 mask1 = cv2.inRange(hsv, lower_green1, upper_green1)
@@ -28,14 +31,14 @@ mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=2)
 mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=2)
 
 # 가장 큰 녹색 영역만 사용하고 싶다면(바닥·초록 배경 제거용):
-num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(mask, connectivity=8)
-if num_labels > 1:
-    # 0은 배경, 1..N은 라벨, 면적 최대 라벨 선택
-    areas = stats[1:, cv2.CC_STAT_AREA]
-    max_label = 1 + np.argmax(areas)
-    mask_biggest = np.zeros_like(mask)
-    mask_biggest[labels == max_label] = 255
-    mask = mask_biggest
+#num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(mask, connectivity=8)
+#if num_labels > 1:
+#    # 0은 배경, 1..N은 라벨, 면적 최대 라벨 선택
+#    areas = stats[1:, cv2.CC_STAT_AREA]
+#    max_label = 1 + np.argmax(areas)
+#    mask_biggest = np.zeros_like(mask)
+#    mask_biggest[labels == max_label] = 255
+#    mask = mask_biggest
 
 # ====== 4) 픽셀 면적 계산 ======
 leaf_pixels = int(np.count_nonzero(mask))
