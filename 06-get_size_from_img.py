@@ -13,17 +13,9 @@ hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 #Hue(25~95): 노란빛(25 근처) → 청록(95 근처)까지 포함
 #Saturation(20 이상): 채도가 너무 낮으면 배경 흰색까지 섞일 수 있어서 20으로 제한
 #Value(20 이상): 어두운 그림자 영역 배제
-# 조명 다양성 대비: 녹색을 두 구간으로 넓게 커버 (필요시 값 미세 조정)
-lower_green1 = np.array([35, 40,  40])
-upper_green1 = np.array([85, 255, 255])
-
-# 조도가 낮거나 채도가 낮은 경우를 위해 더 느슨한 보조 범위 (원치 않으면 제거)
-lower_green2 = np.array([15, 30,  30])
-upper_green2 = np.array([95, 255, 255])
-
-mask1 = cv2.inRange(hsv, lower_green1, upper_green1)
-mask2 = cv2.inRange(hsv, lower_green2, upper_green2)
-mask = cv2.bitwise_or(mask1, mask2)
+lower_green = np.array([25, 20, 20])   # 범위 넓힘
+upper_green = np.array([95, 255, 255])
+mask = cv2.inRange(hsv, lower_green, upper_green)
 
 # ====== 3) 마스크 정제 (노이즈 제거 & 구멍 메우기) ======
 kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5))
